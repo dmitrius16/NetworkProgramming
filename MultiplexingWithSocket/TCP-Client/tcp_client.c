@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
 	printf("To send data, enter text followed by enter.\n");
 
 	// 
-	while(true) {
+	while(1) {
 		fd_set reads;
 		FD_ZERO(&reads);
 		FD_SET(socket_peer, &reads);
@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
 							//alternatively, we could have used FD_SET(fileno(stdin), &reads) to the same effect
 	#endif
 
-		struct timeval = timeout;
+		struct timeval timeout;
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 100000;
 
@@ -82,19 +82,19 @@ int main(int argc, char *argv[]) {
 
 		if (FD_ISSET(socket_peer, &reads)) {
 			char read[4096];
-			int byte_received = recv(socket_peer, read, 4096, 0);
+			int bytes_received = recv(socket_peer, read, 4096, 0);
 			if (bytes_received < 1) {
 				printf("connection closed by peer. \n");
 				break;
 			}
-			printf("Received (%d bytes): %.*s", byte_received, byte_received, read);
+			printf("Received (%d bytes): %.*s", bytes_received, bytes_received, read);
 		}
 		
 		// check terminal input 
 	#if defined (_WIN32) 
 		if (_kbhit()) {
 	#else 
-		if (FD_SET(0, &reads)) {
+		if (FD_ISSET(0, &reads)) {
 	#endif
 			char read[4096];
 			if (!fgets(read, 4096, stdin)) break;
@@ -102,7 +102,7 @@ int main(int argc, char *argv[]) {
 			int bytes_sent = send(socket_peer, read, strlen(read), 0);
 			printf("Sent %d bytes.\n", bytes_sent);
 		}
-	}
+	}  // end while
 
 	printf("Closing socket...\n");
 	CLOSESOCKET(socket_peer);
